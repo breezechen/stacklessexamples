@@ -102,7 +102,7 @@ A simple MUD server written using the Stackless compatible socket module.
 
 In this example, most of the time is spent in the Twisted event loop. This approach allows you to control the granularity of tasklet execution based on time. At 30fps, a timer executes that schedules Stackless tasklets to run - a simple tasklet just prints "do-op".
 
-*TwistedTimerReactorControl.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/twisted/TwistedTimerReactorControl.py Download]
+*!TwistedTimerReactorControl.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/twisted/TwistedTimerReactorControl.py Download]
 
 === Twisted - Yield Integration ===
 
@@ -110,7 +110,7 @@ In this example, a large portion of the time is spent in Stackless. This approac
 
 This example eats a lot of cpu, because no time is spent blocking - the control is constantly being passed back and forth between the reactor and Stackless.
 
-*TwistedYieldReactorControl.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/twisted/TwistedYieldReactorControl.py Download]
+*!TwistedYieldReactorControl.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/twisted/TwistedYieldReactorControl.py Download]
 
 === Twisted - Deferred Integration ===
 
@@ -118,7 +118,7 @@ In this example, most of the time is spent in the Twisted event loop. This appro
 
 Because of the possibility that a deferred operation completes immediately, a channel subclass is used to hold the value and return it without any rescheduling. stackless.channel.send() would otherwise block the tasklet before it could call stackless.channel.receive().
 
-*TwistedYielddeferReactorControl.py* - http://stacklessexamples.googlecode.com/svn/trunk/examples/twisted/TwistedYielddeferReactorControl.py Download]
+*!TwistedYielddeferReactorControl.py* - http://stacklessexamples.googlecode.com/svn/trunk/examples/twisted/TwistedYielddeferReactorControl.py Download]
 
 === Twisted Perspective Broker Producer-Consumer ===
 
@@ -152,4 +152,3 @@ Demonstrates the integration of Stackless with PyQt GUI framework. A taskled tak
 
 *!ProdConPyQt.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/pyqt/producer-consumer/ProdConPyQt.py Download]
 *!ProdConPyQt_ui.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/pyqt/producer-consumer/ProdConPyQt_ui.py Download]
-
