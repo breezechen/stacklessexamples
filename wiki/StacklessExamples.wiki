@@ -128,8 +128,9 @@ PB has support for direct or authenticated sessions where the user receives a "P
 
 For more information on PB check: http://twistedmatrix.com/projects/core/documentation/howto/index.html
 
-*twistedProdCon-Server.py* - http://stacklessexamples.googlecode.com/svn/trunk/examples/twisted/twistedProdCon-Server.py Download]
-*twistedProdCon-Client.py* - http://stacklessexamples.googlecode.com/svn/trunk/examples/twisted/twistedProdCon-Client.py Download]
+*twistedProdCon-Server.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/twisted/twistedProdCon-Server.py Download]
+
+*twistedProdCon-Client.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/twisted/twistedProdCon-Client.py Download]
 
 === Twisted Webserver ===
 
@@ -151,4 +152,6 @@ Demonstrates the use of Stackless with Twisted to implement a web server. Unlike
 Demonstrates the integration of Stackless with PyQt GUI framework. A taskled take care of the interface refresh and updates while other tasklets runs the agents.
 
 *!ProdConPyQt.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/pyqt/producer-consumer/ProdConPyQt.py Download]
+
 *!ProdConPyQt_ui.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/pyqt/producer-consumer/ProdConPyQt_ui.py Download]
+
