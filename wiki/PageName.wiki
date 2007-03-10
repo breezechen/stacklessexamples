@@ -19,7 +19,7 @@ In this project we aim to have usage examples with Stackless for real life probl
 Here follows some examples for features found in Stackless Python. There are examples where only Stackless is used and pages dedicated for Stackless integration with external frameworks like [http://www.twistedmatrix.com Twisted] and [http://www.riverbankcomputing.co.uk PyQt].
 
 
-== Basic Usage ==
+== -- Basic Usage -- ==
 
 === Scheduling ===
 
@@ -52,7 +52,7 @@ We a tasklet that take care of sleep calls.
 
 *producerConsumerTextmode.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/producerConsumerTextmode.py Download]
 
-== Threading ==
+== -- Threading -- ==
 
 === Scheduling and Threads ===
 
@@ -67,7 +67,7 @@ Tasklets can work between channels regardless of which thread the tasklets belon
 *interThreadChannels.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/interThreadChannels.py Download]
 
 
-== Networking ==
+== -- Networking -- ==
 
 === Stackless compatible socket module ===
 
@@ -96,7 +96,7 @@ A simple MUD server written using the Stackless compatible socket module.
 *mud.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/mud.py Download]
 
 
-== Networking With Twisted ==
+== -- Networking With Twisted -- ==
 
 === Twisted - Timer Integration ===
 
@@ -144,7 +144,7 @@ Demonstrates the use of Stackless with Twisted to implement a web server. Unlike
 *TwistedWebserverThreaded.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/twisted/TwistedWebserverThreaded.py Download]
 
 
-== Graphical Interfaces ==
+== -- Graphical Interfaces -- ==
 
 === PyQt Producer-Consumer ===
 
@@ -152,3 +152,4 @@ Demonstrates the integration of Stackless with PyQt GUI framework. A taskled tak
 
 *ProdConPyQt.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/pyqt/producer-consumer/ProdConPyQt.py Download]
 *ProdConPyQt_ui.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/pyqt/producer-consumer/ProdConPyQt_ui.py Download]
+
