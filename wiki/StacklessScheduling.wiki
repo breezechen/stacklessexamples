@@ -1,0 +1,82 @@
+#summary Stackless Scheduling examples.
+
+== Cooperative Scheduling ==
+
+I cooperative scheduling, each tasklet is responsible for calling the schedule method so the other tasklets can have its run time.
+
+`
+import stackless
+
+def doSomething(x):
+    while True:
+        print "My task is print ", x
+        stackless.schedule()
+
+stackless.tasklet(doSomething)("anything")
+
+stackless.run()
+`
+
+There is a simple scheduler built into Stackless Python. It schedules registered tasklets in order, rotating through the list giving each tasklet a turn.
+
+When a tasklet is created, it is automatically appended to the end of this list. However, the scheduler needs to be manually called in order to make it work. The simplest way is to simply run it using the provided method `stackless.run()` exposed in the stackless module. This removes the main tasklet and schedules each registered tasklet in turn until there are no tasklets remaining in the list.
+
+Starting the scheduler in the way shown above runs the tasklets in a cooperative manner. It is the responsibility of each tasklet to get itself rescheduled so that other tasklets can have a turn, as they are not interrupted in any way by the scheduler. This can be done by calling the schedule method `stackless.schedule()`. 
+
+This example uses *Cooperative Scheduling*, which each tasklet schedules itself so the others can have its turn.
+
+
+== Preemptive Scheduling ==
+
+We can also have *Preemptive Scheduling* where we control the number of executions each tasklet have before scheduling. For this we need to change the _run_ method a little. Here follows an example where we run the scheduler until 1000 instructions have been executed:
+
+`
+import stackless
+
+def InfiniteLoop(i):
+    while 1:
+        print "schedule", i
+
+stackless.tasklet(InfiniteLoop)(1)
+stackless.tasklet(InfiniteLoop)(2)
+
+# The current main thread of execution counts as one running tasklet, so
+# we know that if it is the only one remaining, we can exit.
+while stackless.getruncount() != 1:
+   t = stackless.run(1000)
+   # If we got a tasklet back, it was the one that was interrupted.
+   # we need to reinsert it for rescheduling.
+   if t:
+       t.insert()
+`
+
+== More Examples ==
+
+=== Normal Scheduling ===
+
+This example shows the basic usage of Stackless and shows a function that combined with its manager handles sleeping tasklets.
+
+*scheduleNormal.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/scheduleNormal.py Download]
+
+=== Alternative Scheduling ===
+
+Here there is an alternative approach on scheduling:
+
+Benefits of this approach:
+
+- It lends itself well to embedding, if implemented in C or C++.
+- It allows more precise control.
+
+Limitations of this approach:
+
+- The expectation is that the scheduler will be empty because of this
+  will exit pretty much immediately.  So anything which calls to
+  'stackless.schedule' rather than using 'BeNice' or 'Sleep' will
+  break this scheduling model and prevent it from working as
+  expected.  After all, if there are tasklets in the scheduler it
+  continues to run and does not exit.
+
+  Ideally 'stackless.schedule' should be patched to call BeNice.  Or
+  calls to it just avoided completely.
+
+*scheduleAlternative.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/scheduleAlternative.py Download]
