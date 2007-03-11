@@ -1,0 +1,11 @@
+#summary Using Stackless and graphical user interfaces.
+
+== -- Graphical Interfaces -- ==
+
+=== PyQt Producer-Consumer ===
+
+Demonstrates the integration of Stackless with PyQt GUI framework. A taskled take care of the interface refresh and updates while other tasklets runs the agents.
+
+*!ProdConPyQt.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/pyqt/producer-consumer/ProdConPyQt.py Download]
+
+*!ProdConPyQt_ui.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/pyqt/producer-consumer/ProdConPyQt_ui.py Download]
