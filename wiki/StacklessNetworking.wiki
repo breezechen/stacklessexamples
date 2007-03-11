@@ -8,22 +8,22 @@ The existing socket module is not usable naturally in a blocking manner with Sta
 
 This replacement module when used allows socket operations which only block the current tasklet, allowing any other tasklets which are scheduled to continue to run while the current tasklet's network operation is handled asynchronously. What was the current tasklet continues running with the result when the operation is complete. If this module is installed in place of the built-in socket module, then all existing code (whether in the standard library or provided by yourself) which uses the built-in version should inherit this behaviour allowing that existing code to be executable in parallel through the use of tasklets.
 
-*stacklesssocket.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/stacklesssocket.py Download]
+*stacklesssocket.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/networking/stacklesssocket.py Download]
 
 === Simple HTTP Server ===
 
 An example which adapts the standard library module BaseHTTPServer to handle concurrent requests each on their own tasklet (as opposed to using the ThreadingMixIn from the SocketServer module).
 
-*basicWebserver.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/basicWebserver.py Download]
+*basicWebserver.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/networking/basicWebserver.py Download]
 
 === RPC layer ===
 
 Using the Stackless compatible socket module, it is easy to write a layer that marshals remote procedure calls across a network connection.
 
-*rpc.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/rpc.py Download]
+*rpc.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/networking/rpc.py Download]
 
 === MUD server ===
 
 A simple MUD server written using the Stackless compatible socket module.
 
-*mud.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/mud.py Download]
+*mud.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/networking/mud.py Download]
