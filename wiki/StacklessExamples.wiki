@@ -8,30 +8,35 @@
   * More readable code.
   * Increased programmer productivity.
 
+
 = Stackless Documentation =
 
 In the repository, you will find documentation gathered from the internet related to Stackless design, presentations and tutorials.
 
-= Stackless Examples =
 
-In this project we aim to have usage examples with Stackless for real life problems.
+= Stackless Usage =
 
-Here follows some examples for features found in Stackless Python. There are examples where only Stackless is used and pages dedicated for Stackless integration with external frameworks like [http://www.twistedmatrix.com Twisted] and [http://www.riverbankcomputing.co.uk PyQt].
+In this project we aim to have usage examples with Stackless from beginners to real life problems.
 
+Here follows links to examples for features found in Stackless Python. There are examples where only Stackless is used and pages dedicated for Stackless integration with external frameworks like [http://www.twistedmatrix.com Twisted] and [http://www.riverbankcomputing.co.uk PyQt].
 
-== -- Basic Usage -- ==
-
-=== Scheduling ===
-
-This example shows the basic usage of Stackless and shows a function that combined with its manager handles sleeping tasklets.
-
-*scheduleNormal.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/scheduleNormal.py Download]
+* StacklessThreads
+* StacklessNetworking
+* StacklessTwisted
+* StacklessGUI
 
 === Factorial ===
 
 Factorial example using stackless to break Python's recurtion limit of 1000
 
 *factorial.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/factorial.py Download]
+
+=== Producer - Consumer ===
+
+This example illustrates a producer - consumer chain where each agent runs on its tasklet.
+We a tasklet that take care of sleep calls.
+
+*producerConsumerTextmode.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/producerConsumerTextmode.py Download]
 
 === Tasklet Pickling ===
 
@@ -45,112 +50,31 @@ The channel implemented here can have a timeout so the tasklets that are waiting
 
 *channelWithReceiveTimeout.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/channelWithReceiveTimeout.py Download]
 
-=== Producer - Consumer ===
+=== Normal Scheduling ===
 
-This example illustrates a producer - consumer chain where each agent runs on its tasklet.
-We a tasklet that take care of sleep calls.
+This example shows the basic usage of Stackless and shows a function that combined with its manager handles sleeping tasklets.
 
-*producerConsumerTextmode.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/producerConsumerTextmode.py Download]
+*scheduleNormal.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/scheduleNormal.py Download]
 
-== -- Threading -- ==
+=== Alternative Scheduling ===
 
-=== Scheduling and Threads ===
+Here there is an alternative approach on scheduling:
 
-The Stackless scheduler is directly linked to the current thread, so if you use more than one thread, the tasklets you create on each will be local to that thread. You can see the thread-safe Sleep function independently manage the tasklets that were added on any given thread on that thread.
+Benefits of this approach:
 
-*threadscheduling.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/threadscheduling.py Download]
+- It lends itself well to embedding, if implemented in C or C++.
+- It allows more precise control.
 
-=== Channels and Threads ===
+Limitations of this approach:
 
-Tasklets can work between channels regardless of which thread the tasklets belong to. This example demonstrates a shared sleep function which works on the initial main thread and handles sleeps from tasklets on both itself and an identical second spawned thread. It isn't recommended that this approach be used, as the 'preference' attribute of the channel does not work with regard to tasklets from another thread and these tasklets are always preferred being switched to immediately.
+- The expectation is that the scheduler will be empty because of this
+  will exit pretty much immediately.  So anything which calls to
+  'stackless.schedule' rather than using 'BeNice' or 'Sleep' will
+  break this scheduling model and prevent it from working as
+  expected.  After all, if there are tasklets in the scheduler it
+  continues to run and does not exit.
 
-*interThreadChannels.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/interThreadChannels.py Download]
+  Ideally 'stackless.schedule' should be patched to call BeNice.  Or
+  calls to it just avoided completely.
 
-
-== -- Networking -- ==
-
-=== Stackless compatible socket module ===
-
-The existing socket module is not usable naturally in a blocking manner with Stackless because of the way that the tasklets share a thread. If a tasklet blocks in the sense that whatever it has done blocks the thread, then this blocks all the tasklets until the operation is complete. Using the standard asyncore module allows asynchronous socket usage, and by adding a minor amount of support code using channels to block calls to it until an error or a result happens, a functionally equivalent socket module replacement can be created.
-
-This replacement module when used allows socket operations which only block the current tasklet, allowing any other tasklets which are scheduled to continue to run while the current tasklet's network operation is handled asynchronously. What was the current tasklet continues running with the result when the operation is complete. If this module is installed in place of the built-in socket module, then all existing code (whether in the standard library or provided by yourself) which uses the built-in version should inherit this behaviour allowing that existing code to be executable in parallel through the use of tasklets.
-
-*stacklesssocket.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/stacklesssocket.py Download]
-
-=== Simple HTTP Server ===
-
-An example which adapts the standard library module BaseHTTPServer to handle concurrent requests each on their own tasklet (as opposed to using the ThreadingMixIn from the SocketServer module).
-
-*basicWebserver.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/basicWebserver.py Download]
-
-=== RPC layer ===
-
-Using the Stackless compatible socket module, it is easy to write a layer that marshals remote procedure calls across a network connection.
-
-*rpc.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/rpc.py Download]
-
-=== MUD server ===
-
-A simple MUD server written using the Stackless compatible socket module.
-
-*mud.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/mud.py Download]
-
-
-== -- Networking With Twisted -- ==
-
-=== Twisted - Timer Integration ===
-
-In this example, most of the time is spent in the Twisted event loop. This approach allows you to control the granularity of tasklet execution based on time. At 30fps, a timer executes that schedules Stackless tasklets to run - a simple tasklet just prints "do-op".
-
-*!TwistedTimerReactorControl.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/twisted/TwistedTimerReactorControl.py Download]
-
-=== Twisted - Yield Integration ===
-
-In this example, a large portion of the time is spent in Stackless. This approach allows you to control the granularity of tasklet execution based on cooperative yield points in the tasklet. At 30fps, a timer executes that prints the fps. A simple tasklet just prints "." and yields to the reactor. The reactor processes all pending events, then reschedules the tasklet.
-
-This example eats a lot of cpu, because no time is spent blocking - the control is constantly being passed back and forth between the reactor and Stackless.
-
-*!TwistedYieldReactorControl.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/twisted/TwistedYieldReactorControl.py Download]
-
-=== Twisted - Deferred Integration ===
-
-In this example, most of the time is spent in the Twisted event loop. This approach allows you to control the granularity of tasklet execution based on deferred operations a tasklet waits on. At 30fps, a timer executes that prints the fps. A simple tasklet begins a deferred operation, and waits for the result. During that time, control is returned to the reactor.
-
-Because of the possibility that a deferred operation completes immediately, a channel subclass is used to hold the value and return it without any rescheduling. stackless.channel.send() would otherwise block the tasklet before it could call stackless.channel.receive().
-
-*!TwistedYielddeferReactorControl.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/twisted/TwistedYielddeferReactorControl.py Download]
-
-=== Twisted Perspective Broker Producer-Consumer ===
-
-This example uses Stackless together with Twisted Perspective Broker(PB) Perspective Broker (affectionately known as PB) is an asynchronous, symmetric network protocol for secure, remote method calls and transferring of objects.
-
-PB has support for direct or authenticated sessions where the user receives a "Perspective" containning the methods it could call. This example mimics the producer consumer example having the production queue (stack) in a server and the producers and consumers accessing it over the network using predefined exported methods.
-
-For more information on PB check: http://twistedmatrix.com/projects/core/documentation/howto/index.html
-
-*twistedProdCon-Server.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/twisted/twistedProdCon-Server.py Download]
-
-*twistedProdCon-Client.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/twisted/twistedProdCon-Client.py Download]
-
-=== Twisted Webserver ===
-
-Demonstrates the use of Stackless with Twisted to implement a web server. It has a downside in that Stackless' scheduling cannot run while Twisted blocks.
-
-*!TwistedWebserver.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/twisted/TwistedWebserver.py Download]
-
-=== Twisted Threaded Webserver ===
-
-Demonstrates the use of Stackless with Twisted to implement a web server. Unlike the previous example Twisted is run in a separate thread from the Stackless scheduler, which allows tasklets to continue executing while Twisted blocks.
-
-*!TwistedWebserverThreaded.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/twisted/TwistedWebserverThreaded.py Download]
-
-
-== -- Graphical Interfaces -- ==
-
-=== PyQt Producer-Consumer ===
-
-Demonstrates the integration of Stackless with PyQt GUI framework. A taskled take care of the interface refresh and updates while other tasklets runs the agents.
-
-*!ProdConPyQt.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/pyqt/producer-consumer/ProdConPyQt.py Download]
-
-*!ProdConPyQt_ui.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/pyqt/producer-consumer/ProdConPyQt_ui.py Download]
+*scheduleAlternative.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/scheduleAlternative.py Download]
