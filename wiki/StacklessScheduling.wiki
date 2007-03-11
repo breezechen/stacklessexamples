@@ -4,7 +4,7 @@
 
 I cooperative scheduling, each tasklet is responsible for calling the schedule method so the other tasklets can have its run time.
 
-`
+{{{
 import stackless
 
 def doSomething(x):
@@ -15,22 +15,20 @@ def doSomething(x):
 stackless.tasklet(doSomething)("anything")
 
 stackless.run()
-`
+}}}
 
 There is a simple scheduler built into Stackless Python. It schedules registered tasklets in order, rotating through the list giving each tasklet a turn.
 
-When a tasklet is created, it is automatically appended to the end of this list. However, the scheduler needs to be manually called in order to make it work. The simplest way is to simply run it using the provided method `stackless.run()` exposed in the stackless module. This removes the main tasklet and schedules each registered tasklet in turn until there are no tasklets remaining in the list.
+When a tasklet is created, it is automatically appended to the end of this list. However, the scheduler needs to be manually called in order to make it work. The simplest way is to simply run it using the provided method {{{stackless.run()}}} exposed in the stackless module. This removes the main tasklet and schedules each registered tasklet in turn until there are no tasklets remaining in the list.
 
-Starting the scheduler in the way shown above runs the tasklets in a cooperative manner. It is the responsibility of each tasklet to get itself rescheduled so that other tasklets can have a turn, as they are not interrupted in any way by the scheduler. This can be done by calling the schedule method `stackless.schedule()`. 
-
-This example uses *Cooperative Scheduling*, which each tasklet schedules itself so the others can have its turn.
+Starting the scheduler in the way shown above runs the tasklets in a cooperative manner. It is the responsibility of each tasklet to get itself rescheduled so that other tasklets can have a turn, as they are not interrupted in any way by the scheduler. This can be done by calling the schedule method {{{stackless.schedule()}}}. 
 
 
 == Preemptive Scheduling ==
 
 We can also have *Preemptive Scheduling* where we control the number of executions each tasklet have before scheduling. For this we need to change the _run_ method a little. Here follows an example where we run the scheduler until 1000 instructions have been executed:
 
-`
+{{{
 import stackless
 
 def InfiniteLoop(i):
@@ -48,7 +46,7 @@ while stackless.getruncount() != 1:
    # we need to reinsert it for rescheduling.
    if t:
        t.insert()
-`
+}}}
 
 == More Examples ==
 
