@@ -20,10 +20,10 @@ In this project we aim to have usage examples with Stackless from beginners to r
 
 Here follows links to examples for features found in Stackless Python. There are examples where only Stackless is used and pages dedicated for Stackless integration with external frameworks like [http://www.twistedmatrix.com Twisted] and [http://www.riverbankcomputing.co.uk PyQt].
 
-  * StacklessThreads
-  * StacklessNetworking
-  * StacklessTwisted
-  * StacklessGUI
+  * [StacklessThreads]
+  * [StacklessNetworking]
+  * [StacklessTwisted]
+  * [StacklessGUI]
 
 === Factorial ===
 
