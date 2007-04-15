@@ -27,3 +27,16 @@ Using the Stackless compatible socket module, it is easy to write a layer that m
 A simple MUD server written using the Stackless compatible socket module.
 
 *mud.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/networking/mud.py Download]
+
+=== Chat Server ===
+
+An example that uses stacklesssocket to provide a chat like application.
+The users connect via telnet to the IP:port of the server and type in any
+text and all users connected receives it.
+The server identifies an special character to close the connection and handle
+the connected client list.
+
+The example is based on mud.py but uses the standard dispatcher creating a
+tasklet for each connected client.
+
+*chatServer.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/networking/chatServer.py Download]
