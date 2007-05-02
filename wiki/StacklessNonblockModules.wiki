@@ -1,6 +1,6 @@
 #summary One-sentence summary of this page.
 
-= Nonblocking Stackless Mdules =
+= Nonblocking Stackless Modules =
 
 These modules allow seamless integration to sockets and fileIO in a nonblocking fashion. They can be used substituting the original python modules.
 
