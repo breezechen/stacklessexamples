@@ -19,4 +19,4 @@ This module wraps the file class in order to have a file module replacement that
 Not all methods of the file module are wrapped as unblocking by this file.
 Examples of it in use can be seen at the bottom of this file.
 
-*stacklesssocket.py* - [https://stacklessexamples.googlecode.com/svn/trunk/examples/fileIO/stacklessfile.py Download]
+*stacklesssocket.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/fileIO/stacklessfile.py Download]
