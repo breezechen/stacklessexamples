@@ -2,6 +2,8 @@
 
 = -- WSGI -- =
 
+For details on the WSGI specification, see [http://www.python.org/dev/peps/pep-0333/ PEP-333]
+
 === Stackless WSGI Server ===
 
 Commonly, web servers server HTTP requests by dispatching processing to a thread from a thread pool (there are many other models of course). In this example, a WSGI compliant web server is implemented, that dispatches requests to WSGI applications running in a dedicated tasklet.
@@ -23,4 +25,3 @@ This small example shows how that is achieved with Stackless' microthreads.
 Since HTTP is by nature stateless, web application developers must often resort to techniques like cookies, server-side sessions etc. to keep persistent state in a web application. This example shows how tasklets allow us to suspend the web-application execution between requests, effectively eliminating such state-keeping measures since state is stored in local variables inside the tasklet.
 
 *app_sessionless.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/networking/wsgi/app_sessionless.py Download]
-
