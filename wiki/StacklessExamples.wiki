@@ -23,6 +23,7 @@ Here follows links to examples for features found in Stackless Python. There are
   * [StacklessNonblockModules] - Socket and file nonblocking modules
   * [StacklessThreads] - Examples integrating stackless with python threads
   * [StacklessNetworking] - Examples using socket via nonblocking stacklesssocket module.
+  * [StacklessWSGI] - Examples implementing a [http://www.python.org/dev/peps/pep-0333/ WSGI] compliant server and applications.
   * [StacklessTwisted] - Twisted integration with stackless
   * [StacklessGUI] - GUI integration (PyQt, etc)
 
