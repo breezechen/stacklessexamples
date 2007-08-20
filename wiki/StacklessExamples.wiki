@@ -40,6 +40,10 @@ We a tasklet that take care of sleep calls.
 
 *producerConsumerTextmode.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/producerConsumerTextmode.py Download]
 
+There is also a version of producer/consumer example based on BeNice and alternative schedule approach (See below).
+
+*producerConsumerAlternativeSched.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/producerConsumerAlternativeSched.py Download]
+
 === Tasklet Pickling ===
 
 Tasklets can be pickled to a string or file and then unpickled to have its state restored even in another machine.
