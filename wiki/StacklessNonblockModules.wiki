@@ -12,11 +12,18 @@ This replacement module when used allows socket operations which only block the 
 
 *stacklesssocket.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/networking/stacklesssocket.py Download]
 
-=== Stackless compatible file module ===
+=== Stackless compatible file module using Windows IOCP ===
+
+This is an asynchronous file class in order to have a file module replacement that uses channels and a windows async API to allow its methods to block just the calling tasklet not the entire interpreter.
+
+*stacklessfileIOCP.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/fileIO/stacklessfileIOCP.py Download]
+
+
+=== Stackless compatible file module using a ThreadPool===
 
 This module wraps the file class in order to have a file module replacement that uses channels and a threadpool to allow calls to it to block just the calling tasklet until a delayed event occurs.
 
 Not all methods of the file module are wrapped as unblocking by this file.
-Examples of it in use can be seen at the bottom of this file.
+Examples of it in use can be seen at the bottom of it.
 
-*stacklessfile.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/fileIO/stacklessfile.py Download]
+*stacklessfileThreadPool.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/fileIO/stacklessfileThreadPool.py Download]
