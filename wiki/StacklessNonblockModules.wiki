@@ -12,6 +12,12 @@ This replacement module when used allows socket operations which only block the 
 
 *stacklesssocket.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/networking/stacklesssocket.py Download]
 
+=== Stackless compatible socket module using libevent / pyevent ===
+
+This module performs the same function as stacklesssocket.py, but replaces asyncore with libevent / pyevent for higher performance.
+
+*socketlibevent.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/networking/socketlibevent.py Download]
+
 === Stackless compatible file module using Windows IOCP ===
 
 This is an asynchronous file class in order to have a file module replacement that uses channels and a windows async API to allow its methods to block just the calling tasklet not the entire interpreter.
