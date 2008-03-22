@@ -12,7 +12,7 @@ This replacement module when used allows socket operations which only block the 
 
 === Stackless compatible socket module using libevent / pyevent ===
 
-This module performs the same function as stacklesssocket.py, but replaces asyncore with libevent / pyevent for higher performance.
+This module performs the same function as stacklesssocket.py, but replaces asyncore with libevent / pyevent for higher performance. (Experimental. Buggy | Broken. Caution! Danger!)
 
 *socketlibevent.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/networking/socketlibevent.py Download]
 
