@@ -26,7 +26,7 @@ An example which adapts the standard library module BaseHTTPServer to handle con
 
 Using the Stackless compatible socket module, it is easy to write a layer that marshals remote procedure calls across a network connection.
 
-*rpc.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/networking/rpc.py Download]
+*stacklessrpc* - [http://code.google.com/p/stacklessexamples/source/browse/#svn/trunk/examples/networking/stacklessrpc Browse]
 
 === MUD server ===
 
