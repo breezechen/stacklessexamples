@@ -29,7 +29,7 @@ Here follows links to examples for features found in Stackless Python. There are
 
 === Factorial ===
 
-Factorial example using stackless to break Python's recurtion limit of 1000
+Factorial example using stackless to break Python's recursion limit of 1000
 
 *factorial.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/factorial.py Download]
 
