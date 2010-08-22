@@ -84,3 +84,13 @@ Limitations of this approach:
   calls to it just avoided completely.
 
 *scheduleAlternative.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/scheduleAlternative.py Download]
+
+=== Alternative Sleeping (threaded) ===
+
+Here is a module that implements 'sleep' and 'wake' functions.
+
+This implementation doesn't busy wait, as other examples shown in this wiki, by
+using another system thread to run the sleeping tasklets manager.
+
+*_sleeping.py* -
+[https://bitbucket.org/pyalec/useless/src/tip/useless/_sleeping.py Download]
