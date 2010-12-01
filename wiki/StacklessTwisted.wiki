@@ -53,6 +53,6 @@ Demonstrates the use of Stackless with Twisted to implement a web server. Unlike
 *!TwistedWebserverThreaded.py* - [http://stacklessexamples.googlecode.com/svn/trunk/examples/twisted/TwistedWebserverThreaded.py Download]
 
 === Partial Solution to Santa Claus Problem ===
-*!simpleSanta.py* - []
+*!simpleSanta.py* - [http://code.google.com/p/stacklessexamples/downloads/detail?name=simpleSanta.py]
 
 Demonstrates the use of Twisted and the new stackless.select() method in solving a non-trivial concurrency problem - John Trono's <a href="http://delivery.acm.org/10.1145/190000/187391/p8-trono.pdf?key1=187391&key2=2436321921&coll=DL&dl=ACM&CFID=113381262&CFTOKEN=31691828">The Santa Claus Problem</a> Use in conjunction with stackless_v2.py 
