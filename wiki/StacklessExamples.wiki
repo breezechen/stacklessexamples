@@ -94,3 +94,7 @@ using another system thread to run the sleeping tasklets manager.
 
 *_sleeping.py* -
 [https://bitbucket.org/pyalec/useless/src/tip/useless/_sleeping.py Download]
+
+== Experimenting with New Stackless Features ==
+
+PyPy's stackless.py is a python based implementation of Stackless Python. stackless.py is not a full implementation of Stackless Python. Since stackless.py is written in Python and implements the API, it makes a great testbed for prototyping new features. This modified version of stackless.py implements a stackless.select() that is similar to Newsqueak/Go's select, albeit not a language feature. 
