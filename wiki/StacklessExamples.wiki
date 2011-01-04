@@ -93,7 +93,7 @@ This implementation doesn't busy wait, as other examples shown in this wiki, by
 using another system thread to run the sleeping tasklets manager.
 
 *_sleeping.py* -
-[https://bitbucket.org/pyalec/useless/src/tip/useless/_sleeping.py Download]
+[https://bitbucket.org/nettok/useless/src/tip/useless/_sleeping.py Download]
 
 == Experimenting with New Stackless Features ==
 
