@@ -47,8 +47,6 @@ class User:
         except RemoteDisconnectionError:
             self.OnRemoteDisconnection()
             self.connection = None
-        except:
-            traceback.print_exc()
         finally:
             if self.connection:
                 self.connection.Disconnect()
@@ -72,17 +70,14 @@ class User:
             line = line[4:]
             secondPartyPrefix = "Someone says: "
             for user in server.ListUsers():
-                if user is self:
-                    prefix = "You say: "
-                else:
-                    prefix = secondPartyPrefix
+                prefix = "You say: " if user is self else secondPartyPrefix
                 user.connection.WriteLine(prefix + "\"%s\"" % line)
         elif verb == "quit":
             return False
         elif verb == "help":
             self.connection.WriteLine("Commands:")
             for verb in [ "look", "say", "quit", "help" ]:
-                self.connection.WriteLine("  "+ verb)
+                self.connection.WriteLine(f"  {verb}")
         else:
             self.connection.WriteLine("Unknown command.  Type 'help' to see a list of available commands.")
 
@@ -119,7 +114,7 @@ class Connection:
 
     def ReadLine(self):
         global server
-    
+
         s = self.readBuffer
         while True:
             # If there is a CRLF in the text we have, we have a full
@@ -131,10 +126,7 @@ class Connection:
                 self.readBuffer = s[i+2:]
                 while '\x08' in line:
                     i = line.index('\x08')
-                    if i == 0:
-                        line = line[1:]
-                    else:
-                        line = line[:i-1] + line[i+1:]
+                    line = line[1:] if i == 0 else line[:i-1] + line[i+1:]
                 return line
 
             # An empty string indicates disconnection.
@@ -173,7 +165,7 @@ class Server:
         self.userIndex[id(user)] = user
         
     def ListUsers(self):
-        return [ v for v in self.userIndex.itervalues() ]
+        return list(self.userIndex.itervalues())
 
 
 def Run(host, port):

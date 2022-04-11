@@ -291,9 +291,9 @@ class _fakesocket(asyncore.dispatcher):
 
         if nbytes == 0:
             nbytes = len(self.readBytes)
-            if nbytes == 0:
-                buffer[:] = []
-                return 0
+        if nbytes == 0:
+            buffer[:] = []
+            return 0
 
         if self.readIdx == 0 and nbytes >= len(self.readBytes):
             buffer[:] = self.readBytes
@@ -492,7 +492,10 @@ if __name__ == '__main__':
             import urllib.request  # must occur after monkey-patching!
             f = urllib.request.urlopen(uri)
             if not isinstance(f.fp.fp._file._sock, _fakesocket):
-                raise AssertionError("failed to apply monkeypatch, got %s" % f.fp._sock.__class__)
+                raise AssertionError(
+                    f"failed to apply monkeypatch, got {f.fp._sock.__class__}"
+                )
+
             s = f.read()
             if len(s) != 0:
                 print("Fetched", len(s), "bytes via replaced urllib")

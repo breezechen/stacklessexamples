@@ -58,8 +58,8 @@ class TestMainLoop(unittest.TestCase):
 
 def ArbitraryFunc():
     sum = 0
-    for i in range(1000):
-        for j in range(1000):
+    for _ in range(1000):
+        for _ in range(1000):
             sum += 10
         stacklesslib.main.sleep(0)
 

@@ -175,7 +175,7 @@ class _fakesocket(object):
         elif type == SOCK_DGRAM:
             self._socket = self._udp_socket = pyuv.UDP(_pyuv_loop)
         else:
-            raise RuntimeError("Unsupported socket family: %s" % type)
+            raise RuntimeError(f"Unsupported socket family: {type}")
         # Property variables.
         self._family = family
         self._type = type
@@ -233,8 +233,7 @@ class _fakesocket(object):
         channel.receive()
     def connect(self, address): # TCP
         address = self._resolve_address(address)
-        err = self.connect_ex(address)
-        if err:
+        if err := self.connect_ex(address):
             raise stdsocket.error(err, "")
     def connect_ex(self, address):
         channel = self._get_wchannel()
@@ -242,9 +241,7 @@ class _fakesocket(object):
             if channel.balance < 0:
                 if err is not None:
                     err = _errno_map[err]
-                    channel.send(err)
-                else:
-                    channel.send(err)
+                channel.send(err)
         self._tcp_socket.connect(address, connect_callback)
         err = self._receive_with_timeout(channel)
         if err is None:
@@ -473,10 +470,10 @@ class _fakesocket(object):
     def _manage_receive_with_timeout(self, channel):
         if channel.balance < 0:
             _sleep_func(self._timeout)
-            if channel.balance < 0:
-                channel.send_exception(timeout, "timed out")
+        if channel.balance < 0:
+            channel.send_exception(timeout, "timed out")
     @classmethod
-    def _resolve_address(klass, address):
+    def _resolve_address(cls, address):
         if address[0] == "":
             address = ("0.0.0.0", address[1])
         elif address[0] == "localhost":

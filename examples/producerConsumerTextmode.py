@@ -66,7 +66,7 @@ def producer(who,sleeptime):
         if (len(queue) < q_size):
             queue.append("#")
             p_counter[int(who)] += 1
-            printStatus('P'+who)
+            printStatus(f'P{who}')
             if len(queue) < q_size/4:
                 Sleep(sleeptime)
             else:
@@ -81,7 +81,7 @@ def consumer(who,sleeptime):
         if (len(queue) >= 1):
             queue.pop()
             c_counter[int(who)] += 1
-            printStatus('C'+who)
+            printStatus(f'C{who}')
             if len(queue) < q_size/4:
                 Sleep(sleeptime*1.5)
             else:

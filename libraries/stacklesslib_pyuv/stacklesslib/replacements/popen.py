@@ -21,8 +21,7 @@ class FileReadMixin(object):
         return self
         
     def next(self):
-        r = self.readline()
-        if r:
+        if r := self.readline():
             return r
         raise StopIteration
         

@@ -97,10 +97,8 @@ class Lock(LockMixin):
         # Need a special function for this, since we want to call it from
         # an exception handler and not trample the current exception in case
         # we get one ourselves.
-        try:
+        with contextlib.suppress(Exception):
             self._pump()
-        except Exception:
-            pass
 
 
 class RLock(Lock):
@@ -183,12 +181,10 @@ class Condition(LockMixin):
         # If the lock defines _release_save() and/or _acquire_restore(),
         # these override the default implementations (which just call
         # release() and acquire() on the lock).  Ditto for _is_owned().
-        try:
+        with contextlib.suppress(AttributeError):
             self._release_save = lock._release_save
             self._acquire_restore = lock._acquire_restore
             self._is_owned = lock._is_owned
-        except AttributeError:
-            pass
 
     def _release_save(self):
         self.lock.release()           # No state to save
@@ -266,7 +262,7 @@ class NLCondition(LockMixin):
 
     def notify_all(self):
         with atomic():
-            for i in xrange(-self._chan.balance):
+            for _ in xrange(-self._chan.balance):
                 #guard ourselves against premature waking of other tasklets
                 if self._chan.balance:
                     self._chan.send(None)
@@ -298,7 +294,7 @@ class Semaphore(LockMixin):
 
     def release(self, count=1):
         with atomic():
-            for i in xrange(count):
+            for _ in xrange(count):
                 if self._chan.balance:
                     assert self._value == 0
                     self._chan.send(None)
@@ -313,13 +309,13 @@ class BoundedSemaphore(Semaphore):
 
     def release(self, count=1):
         with atomic():
-            for i in xrange(count):
+            for _ in xrange(count):
                 if self._chan.balance:
                     assert self._value == 0
                     self._chan.send(None)
+                elif self._value == self._max_value:
+                    raise ValueError
                 else:
-                    if self._value == self._max_value:
-                        raise ValueError
                     self._value += 1
 
 
@@ -346,7 +342,7 @@ class Event(object):
     def set(self):
         with atomic():
             self._is_set = True
-            for i in range(-self.chan.balance):
+            for _ in range(-self.chan.balance):
                 if self.chan.balance:
                     self.chan.send(None)
 

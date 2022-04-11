@@ -86,10 +86,7 @@ class WorkRequest(object):
         class to store the results of that work request in a dictionary.
         It defaults to the return value of id(self).
         """
-        if requestID is None:
-            self.requestID = id(self)
-        else:
-            self.requestID = requestID
+        self.requestID = id(self) if requestID is None else requestID
         self.callable = callable
         self.ch = ch
         self.args = args or []
@@ -152,12 +149,12 @@ class ThreadPool(object):
     def createWorkers(self, num_workers):
         """Add num_workers worker threads to the pool."""
 
-        for i in range(num_workers):
+        for _ in range(num_workers):
             self.workers.append(WorkerThread(self.requestsQueue, self.resultsChannel))
 
     def dismissWorkers(self, num_workers):
         """Tell num_workers worker threads to to quit when they're done."""
-        for i in range(min(num_workers, len(self.workers))):
+        for _ in range(min(num_workers, len(self.workers))):
             worker = self.workers.pop()
             worker.dismiss()
 
@@ -221,8 +218,7 @@ class stacklessfile(object):
         """
         req = WorkRequest(self.f.write, args, kwargs, ch=self.ch)
         main.putRequest(req)
-        data = self.ch.receive()
-        return data
+        return self.ch.receive()
 
     def next(self, *args, **kwargs):
         """

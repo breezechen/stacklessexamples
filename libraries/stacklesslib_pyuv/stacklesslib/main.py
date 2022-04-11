@@ -14,12 +14,7 @@ except ImportError:
 _sleep = time.sleep # Steal this before monkeypatching occurs.
 
 # Get the best wallclock time to use.
-if sys.platform == "win32":
-    elapsed_time = time.clock
-else:
-    # Time.clock reports CPU time on unix, not good.
-    elapsed_time = time.time
-
+elapsed_time = time.clock if sys.platform == "win32" else time.time
 # Tools for adjusting the scheduling mode.
 
 SCHEDULING_ROUNDROBIN = 0
@@ -36,10 +31,7 @@ def set_scheduling_mode(mode):
 
     
 def set_channel_pref(c):
-    if scheduling_mode == SCHEDULING_ROUNDROBIN:
-        c.preference = 0
-    else:
-        c.preference = -1
+    c.preference = 0 if scheduling_mode == SCHEDULING_ROUNDROBIN else -1
     
     
 # A event queue class.
@@ -132,8 +124,7 @@ class MainLoop(object):
         
     def get_wait_time(self, time):
         delay = self.max_wait_time
-        next_event = event_queue.next_time()
-        if next_event:
+        if next_event := event_queue.next_time():
             delay = min(delay, next_event - time)
             delay = max(delay, 0.0)
         return delay
@@ -184,8 +175,7 @@ class MainLoop(object):
 
     def pump(self, run_for=0):
         t = elapsed_time()
-        wait_time = self.get_wait_time(t)
-        if wait_time:
+        if wait_time := self.get_wait_time(t):
             self.wait(wait_time)
             t = elapsed_time()
         self.wakeup_tasklets(t + 0.001) #fuzz
@@ -224,9 +214,5 @@ class SLIOMainLoop(MainLoop):
     
 event_queue = EventQueue()
 # Disable preferred socket solution of stacklessio for now.
-if stacklessio:
-    mainloop = SLIOMainLoop()
-else:
-    mainloop = MainLoop()
-
+mainloop = SLIOMainLoop() if stacklessio else MainLoop()
 sleep = mainloop.sleep

@@ -68,7 +68,7 @@ class SessionlessApp(object):
     def __init__(self):
         # This dict maps continuation ids to registration times and
         # channels that we must send() on to resume the relevant controller.
-        self.continuations = dict()
+        self.continuations = {}
     
     def __call__(self, environ, start_response):
         """Invokes an application. The request parameters are looked for a parameter

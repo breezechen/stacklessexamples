@@ -146,7 +146,7 @@ def RemoveSynonymOf(threadid, synonym_threadid):
         StackTrace("RemoveSynonymOf unexpected call threadid:%s synonym_threadid:%s" % key)
         return
     synonyms[key] -= 1
-    if 0 == synonyms[key]:
+    if synonyms[key] == 0:
         del synonyms[key]
 
 def RemoveCurrentSynonymOf(synonym_threadid):
@@ -285,11 +285,14 @@ class Semaphore:
         return self.count==self.maxcount
 
     def __str__(self):
-        return "Semaphore("+ str(self.semaphoreName) +")"
+        return f"Semaphore({str(self.semaphoreName)})"
 
     def __del__(self):
         if not self.IsCool():
-            logger.error("Semaphore "+ str(self) +" is being destroyed in a locked or waiting state")
+            logger.error(
+                f"Semaphore {str(self)}"
+                + " is being destroyed in a locked or waiting state"
+            )
 
     def acquire(self):
         if self.strict:
@@ -371,8 +374,8 @@ class SquidgySemaphore:
         '''
             returns true if and only if nobody has, or is waiting for, this lock
         '''
+        lockers = []
         while 1:
-            lockers = []
             try:
                 for each in self.lockers:
                     return 0
@@ -418,28 +421,24 @@ class SquidgySemaphore:
                 StackTrace()
                 sys.exc_clear()
 
-            if theLocker is not None:
-                self.__outer__.release() # yielding to the sucker is fine, since we're waiting for somebody anyhow.
-                if i and ((i%(3*4*60))==0):
-                    logger.error("Acquire-exclusive is waiting for the inner lock (%d seconds total, lockcount=%d)" % (i/4, len(self.lockers)))
-                    LogTraceback("This acquire_exclusive is taking a considerable amount of time")
-                    logger.error("This dude has my lock:")
-                    logger.error("tasklet: "+str(theLocker))
-                    for s in traceback.format_list(traceback.extract_stack(FNext(theLocker.frame),40)):
-                        for n in range(0,10120,253): # forty lines max.
-                            if n==0:
-                                if len(s)<=255:
-                                    x = s
-                                else:
-                                    x = s[:(n+253)]
-                            else:
-                                x = " - " + s[n:(n+253)]
-                            logger.error(x, 4)
-                            if (n+253)>=len(s):
-                                break
-                Sleep(0.500)
-            else:
+            if theLocker is None:
                 break
+            self.__outer__.release() # yielding to the sucker is fine, since we're waiting for somebody anyhow.
+            if i and ((i%(3*4*60))==0):
+                logger.error("Acquire-exclusive is waiting for the inner lock (%d seconds total, lockcount=%d)" % (i/4, len(self.lockers)))
+                LogTraceback("This acquire_exclusive is taking a considerable amount of time")
+                logger.error("This dude has my lock:")
+                logger.error(f"tasklet: {str(theLocker)}")
+                for s in traceback.format_list(traceback.extract_stack(FNext(theLocker.frame),40)):
+                    for n in range(0,10120,253): # forty lines max.
+                        if n==0:
+                            x = s if len(s)<=255 else s[:(n+253)]
+                        else:
+                            x = f" - {s[n:(n+253)]}"
+                        logger.error(x, 4)
+                        if (n+253)>=len(s):
+                            break
+            Sleep(0.500)
             i += 1
 
     def release_exclusive(self):
@@ -649,10 +648,7 @@ class Queue(FIFO):
     #  Queue - get
     # -----------------------------------------------------------------------------------
     def get(self):
-        if self.Length():
-            return self.pop()
-
-        return self.channel.receive()
+        return self.pop() if self.Length() else self.channel.receive()
 
 
 # --------------------------------------------------------------------
@@ -696,7 +692,10 @@ def LockCheck():
             for each in semaphores.keys():
                 BeNice()
                 if (each.count<=0) and (each.waiting.balance < 0) and (each.lockedWhen and (now - each.lockedWhen)>=(5*MIN)):
-                    logger.error("Semaphore %s appears to have threads in a locking conflict."%id(each))
+                    logger.error(
+                        f"Semaphore {id(each)} appears to have threads in a locking conflict."
+                    )
+
                     logger.error("holding thread:")
                     try:
                         for s in traceback.format_list(traceback.extract_stack(each.thread.frame,40)):
@@ -706,7 +705,7 @@ def LockCheck():
                     first = each.waiting.queue
                     t = first
                     while t:
-                        logger.error("waiting thread %s:"%id(t),4)
+                        logger.error(f"waiting thread {id(t)}:", 4)
                         try:
                             for s in traceback.format_list(traceback.extract_stack(t.frame,40)):
                                 logger.error(s,4)
@@ -728,35 +727,27 @@ def PoolHelper(queue):
     t.localStorage   = {}
     respawn = True
     try:
-        try:
-            while 1:
-                BeNice()
-                ctx, callingContext, func, args, keywords = queue.get()
-                if (queue.channel.balance >= 0):
-                    new(PoolHelper, queue).context = "uthread::PoolHelper"
-                #SetLocalStorage(loc)
-                # _tmpctx = t.PushTimer(ctx)
-                try:
-                    apply( func, args, keywords )
-                finally:
-                    ctx                 = None
-                    callingContext      = None
-                    func                = None
-                    #t.localStorage      = {}
-                    #loc                 = None
-                    args                = None
-                    keywords            = None
-                    # t.PopTimer(_tmpctx)
-        except SystemExit:
-            respawn = False
-            raise
-        except:
-            if callingContext is not None:
-                extra = "spawned at %s %s(%s)"%callingContext
-            else:
-                extra = ""
-            StackTrace("Unhandled exception in %s%s" % (ctx, extra))
-            sys.exc_clear()
+        while 1:
+            BeNice()
+            ctx, callingContext, func, args, keywords = queue.get()
+            if (queue.channel.balance >= 0):
+                new(PoolHelper, queue).context = "uthread::PoolHelper"
+            #SetLocalStorage(loc)
+            # _tmpctx = t.PushTimer(ctx)
+            try:
+                apply( func, args, keywords )
+            finally:
+                ctx                 = None
+                callingContext      = None
+                func                = None
+                #t.localStorage      = {}
+                #loc                 = None
+                args                = None
+                keywords            = None
+                # t.PopTimer(_tmpctx)
+    except SystemExit:
+        respawn = False
+        raise
     finally:
         if respawn:
             del t
@@ -794,7 +785,7 @@ def PoolWithoutTheStars(ctx,func,args,keywords,unsafe=0,worker=0):
 
     if __uthread__queue__ is None:
         __uthread__queue__ = Queue()
-        for i in range(60):
+        for _ in range(60):
             new(PoolHelper, __uthread__queue__).context = "uthread::PoolHelper"
     #if unsafe or worker:
     #    st = None
@@ -827,19 +818,16 @@ def ParallelHelper(ch,idx,what):
         try:
             if len(what)==3:
                 ret = (idx, apply(what[0], what[1], what[2] ))
-                if ch.balance < 0 :
-                    ch.send( (1, ret) )
             else:
                 ret = (idx, apply(what[0], what[1] ))
-                if ch.balance < 0:
-                    ch.send( (1, ret) )
+            if ch.balance < 0 :
+                ch.send( (1, ret) )
         except StandardError:
             ei = sys.exc_info()
             sys.exc_clear()
 
-        if ei:
-            if ch.balance < 0:
-                ch.send((0,ei))
+        if ei and ch.balance < 0:
+            ch.send((0,ei))
         del ei
     finally:
         RemoveCurrentSynonymOf(threadid)

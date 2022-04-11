@@ -298,16 +298,10 @@ class FileObject(BaseFileObject):
         if 'w' in mode or 'r' in mode and '+' in mode:
             access |= GENERIC_WRITE
         share = FILE_SHARE_READ | FILE_SHARE_WRITE
-        if 'w' in mode:
-            disposition = OPEN_ALWAYS
-        else:
-            disposition = OPEN_EXISTING
+        disposition = OPEN_ALWAYS if 'w' in mode else OPEN_EXISTING
         dummyp = c_void_p()
 
-        if isinstance(filename, unicode):
-            func = CreateFileW
-        else:
-            func = CreateFileA
+        func = CreateFileW if isinstance(filename, unicode) else CreateFileA
         handle = func(filename, access, share, dummyp, disposition, flags, NULL)
         if handle == INVALID_HANDLE_VALUE:
             # I chose this because it gives an approximate error to the one I get
@@ -378,7 +372,7 @@ class FileObject(BaseFileObject):
         # which we can use to write from is.
         writeBufferPtr = c_char_p()
         bytesToWrite = c_int()
-        fmt = self.binary and "s#" or "t#"
+        fmt = "s#" if self.binary else "t#"
         ret = pythonapi.PyArg_ParseTuple(py_object((s,)), c_char_p(fmt), byref(bPtr), byref(bLen))
         if ret == 0:
             # This sould be a Python error.

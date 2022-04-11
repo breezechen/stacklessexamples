@@ -71,14 +71,12 @@ class Thread(object):
         self._daemon = current_thread().daemon
 
     def __repr__(self):
-        status = "initial"
-        if self._started:
-            status = "started"
+        status = "started" if self._started else "initial"
         if self._daemon:
             status += " daemon"
         if self.ident is not None:
-            status += " %s" % self.ident
-        return "<%s(%s, %s)>" % (self.__class__.__name__, self.name, status)
+            status += f" {self.ident}"
+        return f"<{self.__class__.__name__}({self.name}, {status})>"
 
     def start(self):
         if self._started:

@@ -210,11 +210,7 @@ class evsocket():
 # SSL Proxy Class
 class evsocketssl(evsocket):
     def __init__(self, sock, keyfile=None, certfile=None):
-        if certfile:
-            server_side = True
-        else:
-            server_side = False
-        
+        server_side = bool(certfile)
         # XXX This currently performs a BLOCKING handshake operation
         # TODO Implement a non-blocking handshake
         self.sock = ssl_.wrap_socket(sock, keyfile, certfile, server_side)

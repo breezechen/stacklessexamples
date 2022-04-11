@@ -76,14 +76,11 @@ class EndPoint:
             return
 
     def _ReceivePackets(self):
-        rawPacket = self._ReadIncomingPacket()
-        while rawPacket:
+        while rawPacket := self._ReadIncomingPacket():
             self._DispatchIncomingPacket(rawPacket)
-            rawPacket = self._ReadIncomingPacket()
 
     def _ReadIncomingPacket(self):
-        sizeData = self._ReadIncomingData(self.packetSizeLength)
-        if sizeData:
+        if sizeData := self._ReadIncomingData(self.packetSizeLength):
             dataLength = struct.unpack(self.packetSizeFmt, sizeData)[0]
             return self._ReadIncomingData(dataLength)
 

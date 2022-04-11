@@ -24,8 +24,8 @@ def _count():
 class Thread(stackless.tasklet):
     # Some tests need this
     __slots__ = ["__dict__"]
-    def __new__(cls):
-        return stackless.tasklet.__new__(cls, cls._thread_main)
+    def __new__(self):
+        return stackless.tasklet.__new__(self, self._thread_main)
     
     @staticmethod
     def _thread_main(func, args, kwargs):

@@ -195,10 +195,7 @@ class sock_channel(asyncore.dispatcher):
         self.recv_channel = stackless.channel()
     
     def writable(self):
-        if not self.connected:
-            return True
-        # If we have buffered data to send, we're intersted in write events
-        return len(self.send_buffer)
+        return len(self.send_buffer) if self.connected else True
     
     def send(self, data):
         if self.send_buffer is None:
@@ -317,40 +314,37 @@ class sock_channel_rfile(object):
             line = self.buffer[:idx+1]
             self.buffer = self.buffer[idx+1:]
             return line
-        
+
         while "\n" not in self.buffer:
             chunk = self.read(512)
             if chunk == "":
                 break
             self.buffer += chunk
-        
+
         if self.buffer == "":
             return ""
-        
+
         idx = self.buffer.find("\n")
         if idx > -1:
             line = self.buffer[:idx+1]
             self.buffer = self.buffer[idx+1:]
-            return line
         else:
             line = self.buffer
             self.buffer = ""
-            return line
+
+        return line
     
     def readlines(self, hint=None):
         lines = []
-        line = self.readline()
-        while line:
+        while line := self.readline():
             lines.append(line)
-            line = self.readline()
         return lines
     
     def __iter__(self):
         return self
     
     def next(self):
-        line = self.readline()
-        if line:
+        if line := self.readline():
             return line
         else:
             raise StopIteration
@@ -372,18 +366,51 @@ class sock_channel_rfile(object):
 quoted_slash = re.compile("(?i)%2F")
 
 import errno
-socket_errors_to_ignore = set(_ for _ in ("EPIPE", "ETIMEDOUT", "ECONNREFUSED", "ECONNRESET",
-          "EHOSTDOWN", "EHOSTUNREACH",
-          "WSAECONNABORTED", "WSAECONNREFUSED", "WSAECONNRESET",
-          "WSAENETRESET", "WSAETIMEDOUT") if _ in dir(errno))
+socket_errors_to_ignore = {
+    _
+    for _ in (
+        "EPIPE",
+        "ETIMEDOUT",
+        "ECONNREFUSED",
+        "ECONNRESET",
+        "EHOSTDOWN",
+        "EHOSTUNREACH",
+        "WSAECONNABORTED",
+        "WSAECONNREFUSED",
+        "WSAECONNRESET",
+        "WSAENETRESET",
+        "WSAETIMEDOUT",
+    )
+    if _ in dir(errno)
+}
+
 socket_errors_to_ignore.add("timed out")
 
-comma_separated_headers = set(['ACCEPT', 'ACCEPT-CHARSET', 'ACCEPT-ENCODING',
-    'ACCEPT-LANGUAGE', 'ACCEPT-RANGES', 'ALLOW', 'CACHE-CONTROL',
-    'CONNECTION', 'CONTENT-ENCODING', 'CONTENT-LANGUAGE', 'EXPECT',
-    'IF-MATCH', 'IF-NONE-MATCH', 'PRAGMA', 'PROXY-AUTHENTICATE', 'TE',
-    'TRAILER', 'TRANSFER-ENCODING', 'UPGRADE', 'VARY', 'VIA', 'WARNING',
-    'WWW-AUTHENTICATE'])
+comma_separated_headers = {
+    'ACCEPT',
+    'ACCEPT-CHARSET',
+    'ACCEPT-ENCODING',
+    'ACCEPT-LANGUAGE',
+    'ACCEPT-RANGES',
+    'ALLOW',
+    'CACHE-CONTROL',
+    'CONNECTION',
+    'CONTENT-ENCODING',
+    'CONTENT-LANGUAGE',
+    'EXPECT',
+    'IF-MATCH',
+    'IF-NONE-MATCH',
+    'PRAGMA',
+    'PROXY-AUTHENTICATE',
+    'TE',
+    'TRAILER',
+    'TRANSFER-ENCODING',
+    'UPGRADE',
+    'VARY',
+    'VIA',
+    'WARNING',
+    'WWW-AUTHENTICATE',
+}
 
 
 class HTTPRequest(object):
@@ -591,17 +618,17 @@ class HTTPRequest(object):
     def read_headers(self):
         """Read header lines from the incoming stream."""
         environ = self.environ
-        
+
         while True:
             line = self.rfile.readline()
             if not line:
                 # No more data--illegal end of headers
                 raise ValueError("Illegal end of headers.")
-            
+
             if line == '\r\n':
                 # Normal end of headers
                 break
-            
+
             if line[0] in ' \t':
                 # It's a continuation line.
                 v = line.strip()
@@ -609,18 +636,15 @@ class HTTPRequest(object):
                 k, v = line.split(":", 1)
                 k, v = k.strip().upper(), v.strip()
                 envname = "HTTP_" + k.replace("-", "_")
-            
+
             if k in comma_separated_headers:
-                existing = environ.get(envname)
-                if existing:
+                if existing := environ.get(envname):
                     v = ", ".join((existing, v))
             environ[envname] = v
-        
-        ct = environ.pop("HTTP_CONTENT_TYPE", None)
-        if ct:
+
+        if ct := environ.pop("HTTP_CONTENT_TYPE", None):
             environ["CONTENT_TYPE"] = ct
-        cl = environ.pop("HTTP_CONTENT_LENGTH", None)
-        if cl:
+        if cl := environ.pop("HTTP_CONTENT_LENGTH", None):
             environ["CONTENT_LENGTH"] = cl
     
     def decode_chunked(self):
@@ -677,12 +701,12 @@ class HTTPRequest(object):
         status = str(status)
         buf = ["%s %s\r\n" % (self.environ['ACTUAL_SERVER_PROTOCOL'], status),
                "Content-Length: %s\r\n" % len(msg)]
-        
-        if status[:3] == "413" and self.response_protocol == 'HTTP/1.1':
+
+        if status.startswith("413") and self.response_protocol == 'HTTP/1.1':
             # Request Entity Too Large
             self.close_connection = True
             buf.append("Connection: close\r\n")
-        
+
         buf.append("\r\n")
         if msg:
             buf.append(msg)
@@ -727,17 +751,12 @@ class HTTPRequest(object):
         """Assert, process, and send the HTTP response message-headers."""
         hkeys = [key.lower() for key, value in self.outheaders]
         status = int(self.status[:3])
-        
+
         if status == 413:
             # Request Entity Too Large. Close conn to avoid garbage.
             self.close_connection = True
         elif "content-length" not in hkeys:
-            # "All 1xx (informational), 204 (no content),
-            # and 304 (not modified) responses MUST NOT
-            # include a message-body." So no point chunking.
-            if status < 200 or status in (204, 205, 304):
-                pass
-            else:
+            if status >= 200 and status not in (204, 205, 304):
                 if self.response_protocol == 'HTTP/1.1':
                     # Use the chunked transfer-coding
                     self.chunked_write = True
@@ -745,24 +764,23 @@ class HTTPRequest(object):
                 else:
                     # Closing the conn is the only way to determine len.
                     self.close_connection = True
-        
+
         if "connection" not in hkeys:
             if self.response_protocol == 'HTTP/1.1':
                 if self.close_connection:
                     self.outheaders.append(("Connection", "close"))
-            else:
-                if not self.close_connection:
-                    self.outheaders.append(("Connection", "Keep-Alive"))
-        
+            elif not self.close_connection:
+                self.outheaders.append(("Connection", "Keep-Alive"))
+
         if "date" not in hkeys:
             self.outheaders.append(("Date", rfc822.formatdate()))
-        
+
         if "server" not in hkeys:
             self.outheaders.append(("Server", self.environ['SERVER_SOFTWARE']))
-        
+
         buf = [self.environ['ACTUAL_SERVER_PROTOCOL'], " ", self.status, "\r\n"]
         try:
-            buf += [k + ": " + v + "\r\n" for k, v in self.outheaders]
+            buf += [f'{k}: {v}' + "\r\n" for k, v in self.outheaders]
         except TypeError:
             if not isinstance(k, str):
                 raise TypeError("WSGI response header key %r is not a string.")

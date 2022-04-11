@@ -21,10 +21,14 @@ _main_thread_id = stackless.main.thread_id
 def select(*args, **kwargs):
     # If it blocks until it gets a result, or for longer than a nominal
     # amount, then farm it off onto another thread.
-    if stackless.current.thread_id == _main_thread_id:
-        if len(args) == 3 or len(args) == 4 and (args[3] is None or args[3] > 0.05) or \
-             "timeout" in kwargs and (kwargs["timeout"] is None or kwargs["timeout"] > 0.05):
-            return stacklesslib.util.call_on_thread(real_select.select, args, kwargs)
+    if stackless.current.thread_id == _main_thread_id and (
+        len(args) == 3
+        or len(args) == 4
+        and (args[3] is None or args[3] > 0.05)
+        or "timeout" in kwargs
+        and (kwargs["timeout"] is None or kwargs["timeout"] > 0.05)
+    ):
+        return stacklesslib.util.call_on_thread(real_select.select, args, kwargs)
 
     # Otherwise, do it inline and expect to return effectively immediately.
     return real_select.select(*args)

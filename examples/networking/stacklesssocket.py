@@ -82,9 +82,7 @@ except Exception:
 if "__all__" in stdsocket.__dict__:
     __all__ = stdsocket.__all__
     for k, v in stdsocket.__dict__.iteritems():
-        if k in __all__:
-            globals()[k] = v
-        elif k == "EBADF":
+        if k in __all__ or k == "EBADF":
             globals()[k] = v
 else:
     for k, v in stdsocket.__dict__.iteritems():
@@ -291,7 +289,10 @@ class _fakesocket(asyncore_dispatcher):
         # This is worth doing.  I was passing in an invalid socket which
         # was an instance of _fakesocket and it was causing tasklet death.
         if not isinstance(realSocket, _realsocket_old):
-            raise StandardError("An invalid socket passed to fakesocket %s" % realSocket.__class__)
+            raise StandardError(
+                f"An invalid socket passed to fakesocket {realSocket.__class__}"
+            )
+
 
         # This will register the real socket in the internal socket map.
         asyncore_dispatcher.__init__(self, realSocket)
@@ -327,10 +328,10 @@ class _fakesocket(asyncore_dispatcher):
             return channel.receive()
 
     def _manage_receive_with_timeout(self, channel):
-        if channel.balance < 0:            
+        if channel.balance < 0:        
             _sleep_func(self._timeout)
-            if channel.balance < 0:
-                channel.send_exception(timeout, "timed out")
+        if channel.balance < 0:
+            channel.send_exception(timeout, "timed out")
 
     def __del__(self):
         # There are no more users (sockets or files) of this fake socket, we
@@ -494,18 +495,22 @@ class _fakesocket(asyncore_dispatcher):
         return ret
 
     def recv(self, *args):
-        if self.socket.type != SOCK_DGRAM and not self.connected:
-            # Sockets which have never been connected do this.
-            if not self.wasConnected:
-                raise error(ENOTCONN, 'Socket is not connected')
+        if (
+            self.socket.type != SOCK_DGRAM
+            and not self.connected
+            and not self.wasConnected
+        ):
+            raise error(ENOTCONN, 'Socket is not connected')
 
         return self._recv("recv", args)
 
     def recv_into(self, *args):
-        if self.socket.type != SOCK_DGRAM and not self.connected:
-            # Sockets which have never been connected do this.
-            if not self.wasConnected:
-                raise error(ENOTCONN, 'Socket is not connected')
+        if (
+            self.socket.type != SOCK_DGRAM
+            and not self.connected
+            and not self.wasConnected
+        ):
+            raise error(ENOTCONN, 'Socket is not connected')
 
         return self._recv("recv_into", args, sizeIdx=1)
 
@@ -584,10 +589,13 @@ class _fakesocket(asyncore_dispatcher):
 
     # Inform the blocked connect call that the connection has been made.
     def handle_connect(self):
-        if self.socket.type != SOCK_DGRAM:
-            if self.connectChannel and self.connectChannel.balance < 0:
-                self.wasConnected = True
-                self.connectChannel.send(None)
+        if (
+            self.socket.type != SOCK_DGRAM
+            and self.connectChannel
+            and self.connectChannel.balance < 0
+        ):
+            self.wasConnected = True
+            self.connectChannel.send(None)
 
     # Asyncore says its done but self.readBuffer may be non-empty
     # so can't close yet.  Do nothing and let 'recv' trigger the close.

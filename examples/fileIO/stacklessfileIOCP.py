@@ -158,10 +158,9 @@ class resultsManager(object):
                                             byref(completionKey), byref(ovp),
                                             timeout)
 
-            if not ovp and ret == 0:
-                if GetLastError() == WAIT_TIMEOUT:
-                    stackless.schedule()
-                    continue
+            if not ovp and ret == 0 and GetLastError() == WAIT_TIMEOUT:
+                stackless.schedule()
+                continue
 
             if ovp.contents.taskletID in self.overlappedByID:
                 #print ovp.contents.taskletID, " tasklet ID IN pool"
@@ -297,11 +296,7 @@ class stacklessfileIOCP(object):
 
         flags = FILE_FLAG_RANDOM_ACCESS | FILE_FLAG_OVERLAPPED
 
-        if isinstance(self.name, unicode):
-            func = CreateFileW
-        else:
-            func = CreateFileA
-
+        func = CreateFileW if isinstance(self.name, unicode) else CreateFileA
         self.handle = func(self.name, access,
                               share, c_void_p(), disposition,
                               flags, HANDLE(0) )
@@ -364,7 +359,7 @@ class stacklessfileIOCP(object):
         mng._check_running()
         #print self.o.taskletID, "ID on write", self.name
 
-        fmt = self.binary and "s#" or "t#"
+        fmt = "s#" if self.binary else "t#"
         ret = pythonapi.PyArg_ParseTuple(py_object((data,)), c_char_p(fmt),
                                          byref(writeBufferPtr), byref(bytesToWrite))
         if ret == 0:

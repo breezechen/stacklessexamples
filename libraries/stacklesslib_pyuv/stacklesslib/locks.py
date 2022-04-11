@@ -238,7 +238,7 @@ class Semaphore(LockMixin):
             
     def release(self, count=1):
         with atomic():
-            for i in xrange(count):
+            for _ in xrange(count):
                 if self._chan.balance:
                     assert self._value == 0
                     self._chan.send(None)
@@ -253,13 +253,13 @@ class BoundedSemaphore(Semaphore):
         
     def release(self, count=1):
         with atomic():
-            for i in xrange(count):
+            for _ in xrange(count):
                 if self._chan.balance:
                     assert self._value == 0
                     self._chan.send(None)
+                elif self._value == self._max_value:
+                    raise ValueError
                 else:
-                    if self._value == self._max_value:
-                        raise ValueError
                     self._value += 1
 
 
@@ -285,6 +285,6 @@ class Event(object):
             
     def set(self):
         self._is_set = True
-        for i in range(-self.chan.balance):
+        for _ in range(-self.chan.balance):
             self.chan.send(None)
 

@@ -57,7 +57,7 @@ class NamedTasklet(stackless.tasklet):
 
     def __repr__(self):
         try:
-            return '%s' % self.name
+            return f'{self.name}'
         except AttributeError:
             # I think that this will only happen with the main tasklet
             return '%08x' % (id(self))
@@ -75,7 +75,7 @@ class TimeKeeper(object):
     __slots__ = ['chnPool', 'sleepers']
 
     def __init__(self):
-        self.chnPool = [stackless.channel() for i in range(100)]
+        self.chnPool = [stackless.channel() for _ in range(100)]
         self.sleepers = []
 
     def getSleeperCount(self):
@@ -212,16 +212,14 @@ class BaseScheduler(object):
     def pause(self, taskID):
         """Pauses a running tasklet
         """
-        task = self.running.pop(taskID, None)
-        if task:
+        if task := self.running.pop(taskID, None):
             task.remove()
             self.paused[taskID] = task
 
     def resume(self, taskID):
         """Resumes a paused tasklet
         """
-        task = self.paused.pop(taskID, None)
-        if task:
+        if task := self.paused.pop(taskID, None):
             task.insert()
             self.running[taskID] = task
 
@@ -238,8 +236,7 @@ class BaseScheduler(object):
     def dumpTask(self, taskID, kill=0):
         """Returns a pickled tasklet
         """
-        task = self.running.get(taskID, None) or self.paused.get(taskID, None)
-        if task:
+        if task := self.running.get(taskID, None) or self.paused.get(taskID, None):
             data = cPickle.dumps(task, 2)
             if kill:
                 self.kill(repr(task))
@@ -309,10 +306,7 @@ class PreemptiveScheduler(BaseScheduler):
         """
         while self.getRunCount() > 1:
             try:
-                # Run a single slice, if the currently executing thread is
-                # still running append it to the scheduler list
-                victim = stackless.run(self.maxSlice)
-                if victim:
+                if victim := stackless.run(self.maxSlice):
                     victim.insert()
             except:
                 self.printException()
@@ -321,10 +315,7 @@ class PreemptiveScheduler(BaseScheduler):
         """Execute the schedule list once, then return
         """
         try:
-            # Run a single slice, if the currently executing thread is
-            # still running append it to the scheduler list
-            victim = stackless.run(self.maxSlice)
-            if victim:
+            if victim := stackless.run(self.maxSlice):
                 victim.insert()
         except:
             self.printException()
@@ -506,9 +497,7 @@ class Queue(object):
         self.contents.append(x)
 
     def get(self):
-        if self.contents:
-            return self.contents.pop(0)
-        return self.channel.receive()
+        return self.contents.pop(0) if self.contents else self.channel.receive()
 
     def unget(self, x):
         self.contents.insert(0, x)
@@ -529,7 +518,7 @@ class Synchronizer(object):
     def sync(self):
         self.count += 1
         if self.count == self.maxCount:
-            for i in range(self.maxCount):
+            for _ in range(self.maxCount):
                 self.queue.put(None)
             self.count = 0
         return self.queue.get()

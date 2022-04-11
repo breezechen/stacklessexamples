@@ -139,7 +139,7 @@ def _check_unguarded():
 def _make_guarded_call(k, f):
     def guarded_call(*args, **kwargs):
         if not _check_unguarded():
-            raise NoioException("Blocking call to %s" % k)
+            raise NoioException(f"Blocking call to {k}")
         return f(*args, **kwargs)
     return guarded_call
 

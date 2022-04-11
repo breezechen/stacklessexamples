@@ -54,7 +54,7 @@ def timeout_worker(workerChannel):
         #print "timeout_worker:DONE", secondsToWait, args
 
 # Start up a nominal amount of worker tasklets.    
-for i in range(50):
+for _ in range(50):
     stackless.tasklet(new_tasklet)(timeout_worker, stackless.channel())
 
 def timeout_wrap_sleep(seconds, timeoutChannel, args):
@@ -62,13 +62,13 @@ def timeout_wrap_sleep(seconds, timeoutChannel, args):
     if timeoutChannel.balance < 0:
         #print "timeout_wrap_sleep:SLEEP balance=%d" % timeoutChannel.balance
         sleep(seconds)
-        #print "timeout_wrap_sleep:SLEPT balance=%d" % timeoutChannel.balance
-        if timeoutChannel.balance < 0:
-            #print "timeout_wrap_sleep:WAKEUP balance=%d" % timeoutChannel.balance
-            if args is not None:
-                timeoutChannel.send_exception(*args)
-            else:
-                timeoutChannel.send(None)
+    #print "timeout_wrap_sleep:SLEPT balance=%d" % timeoutChannel.balance
+    if timeoutChannel.balance < 0:
+        #print "timeout_wrap_sleep:WAKEUP balance=%d" % timeoutChannel.balance
+        if args is not None:
+            timeoutChannel.send_exception(*args)
+        else:
+            timeoutChannel.send(None)
     #print "timeout_wrap_sleep:EXIT balance=%d" % timeoutChannel.balance
 
 def main_thread_channel_timeout(seconds, timeoutChannel, args=None):
@@ -153,9 +153,7 @@ last_poll_time = time.time()
 # Whether to monitor the threads (used by test_socket) in case of deadlock.
 if True:
     def thread_name(threadId):
-        if threadId == main_thread_id:
-            return "main_thread"
-        return "unknown"
+        return "main_thread" if threadId == main_thread_id else "unknown"
 
     def dumpstacks():
         code = []

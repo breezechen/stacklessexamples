@@ -72,18 +72,7 @@ def ScheduleTasklets():
 
     CheckSleepingTasklets()
 
-    # Run any tasklets which need to be scheduled.  As long as the BeNice and
-    # Sleep callers do not use schedule they should never be in the scheduler
-    # at this point, but rather back in the yield channel or on a sleep channel.
-    # Loosely guessing, I would say that only newly created tasklets should
-    # ever be in the scheduler.  And nothing should stay in there for that
-    # long before moving out by using Sleep or BeNice.  If something does stay
-    # in there too long then it is not yielding or is keeping the scheduler
-    # running by using 'stackless.schedule' which is not compatible with the
-    # way this method intends the scheduler to be used.
-
-    interruptedTasklet = stackless.run(1000000)
-    if interruptedTasklet:
+    if interruptedTasklet := stackless.run(1000000):
         # Should really print a stacktrace from the tasklet so it can be
         # rewritten to 'be nice'.  Alternatively the tasklet could be killed
         # at this point if that suits the application.

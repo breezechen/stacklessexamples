@@ -14,12 +14,7 @@ except ImportError:
 _sleep = time.sleep # Steal this before monkeypatching occurs.
 
 # Get the best wallclock time to use.
-if sys.platform == "win32":
-    elapsed_time = time.clock
-else:
-    # Time.clock reports CPU time on unix, not good.
-    elapsed_time = time.time
-
+elapsed_time = time.clock if sys.platform == "win32" else time.time
 # Tools for adjusting the scheduling mode.
 
 SCHEDULING_ROUNDROBIN = 0
@@ -36,10 +31,7 @@ def set_scheduling_mode(mode):
 
 
 def set_channel_pref(c):
-    if scheduling_mode == SCHEDULING_ROUNDROBIN:
-        c.preference = 0
-    else:
-        c.preference = -1
+    c.preference = 0 if scheduling_mode == SCHEDULING_ROUNDROBIN else -1
 
 
 # A event queue class.
@@ -85,22 +77,21 @@ class EventQueue(object):
         """
         The worker function for the main loop to process events in the queue
         """
-        q = self.queue
-        if q:
-            batch = []
-            now = self.time()
-            while q and q[0][0] <= now:
-                batch.append(heapq.heappop(q)[1])
+        if not (q := self.queue):
+            return 0
+        batch = []
+        now = self.time()
+        while q and q[0][0] <= now:
+            batch.append(heapq.heappop(q)[1])
 
 
-            # Run the events
-            for what in batch:
-                try:
-                    what()
-                except Exception:
-                    self.handle_exception(sys.exc_info())
-            return len(batch)
-        return 0
+        # Run the events
+        for what in batch:
+            try:
+                what()
+            except Exception:
+                self.handle_exception(sys.exc_info())
+        return len(batch)
 
     @property
     def is_due(self):
@@ -109,9 +100,7 @@ class EventQueue(object):
 
     def next_time(self):
         """the UTC time at which the next event is due."""
-        if self.queue:
-            return self.queue[0][0]
-        return None
+        return self.queue[0][0] if self.queue else None
 
     def handle_exception(self, exc_info):
         traceback.print_exception(*exc_info)
@@ -156,7 +145,7 @@ class LoopScheduler(object):
 
     def pump(self):
         self.due = False
-        for i in xrange(-self.chan.balance):
+        for _ in xrange(-self.chan.balance):
             if self.chan.balance:
                 self.chan.send(None)
 
@@ -199,8 +188,7 @@ class MainLoop(object):
             return 0.0
         if delay is None:
             delay = self.max_wait_time
-        next_event = self.event_queue.next_time()
-        if next_event:
+        if next_event := self.event_queue.next_time():
             delay = min(delay, next_event - time)
             delay = max(delay, 0.0)
         return delay
@@ -264,8 +252,7 @@ class MainLoop(object):
     def wait(self):
         """ Wait for the next scheduled event, or IO (if IO can notify us) """
         t = elapsed_time()
-        wait_time = self.get_wait_time(t)
-        if wait_time:
+        if wait_time := self.get_wait_time(t):
             self.interruptable_wait(wait_time)
 
     def run(self):
@@ -305,11 +292,7 @@ def sleep_next():
 
 
 # Disable preferred socket solution of stacklessio for now.
-if stacklessio:
-    mainloop = SLIOMainLoop
-else:
-    mainloop = MainLoop
-
+mainloop = SLIOMainLoop if stacklessio else MainLoop
 event_queue = EventQueue()
 scheduler = LoopScheduler(event_queue)
 mainloop = MainLoop()

@@ -237,23 +237,17 @@ class Consumer(Agent):
             Sleep(self.time)
 
 def main():
-    PID = 0
-    CID = 0
     num_prod = 10                # Number of starting producers
     num_cons = 10                # Number of starting consumers
 
-    for i in range(num_prod):
+    for PID, _ in enumerate(range(num_prod)):
         ID = PID
-        name = "P"+str(ID)
+        name = f"P{str(ID)}"
         a = Producer(name,"producer", "prod")
-        PID += 1
-
-    for i in range(num_cons):
+    for CID, _ in enumerate(range(num_cons)):
         ID = CID
-        name = "C"+str(ID)
+        name = f"C{str(ID)}"
         a = Consumer(name, "consumer", "cons")
-        CID += 1
-
     t = task.LoopingCall(stackless.schedule).start(0.0001)
     re = stackless.tasklet(reactor.run)()
     stackless.run()

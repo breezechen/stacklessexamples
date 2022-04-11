@@ -113,8 +113,7 @@ class Producer(Agent):
                 Sleep(self.time*2)
             self.queue.put(1, self.name)
             self.items += 1
-        else:
-            Sleep(self.time)
+        Sleep(self.time)
 
 class Consumer(Agent):
     def __init__(self, name, queue):
@@ -130,8 +129,7 @@ class Consumer(Agent):
                 Sleep(self.time*2)
             else:
                 Sleep(self.time)
-        else:
-            Sleep(self.time)
+        Sleep(self.time)
 
 ##########################################################################
 
@@ -176,10 +174,10 @@ class mainWindow(QtGui.QMainWindow):
         self.monit = stackless.tasklet(self.monitor)()
         self.ui.queue.setMaximum(self.q.max_size)
 
-        for i in range(num_prod):
+        for _ in range(num_prod):
             self.addprod()
 
-        for i in range(num_cons):
+        for _ in range(num_cons):
             self.addcons()
 
         self.ui.statusbar.showMessage("Running")
@@ -192,13 +190,13 @@ class mainWindow(QtGui.QMainWindow):
 
     def addprod(self):
         ID = self.PID
-        name = "P"+str(ID)
+        name = f"P{str(ID)}"
         a = Producer(name, self.q)
         self.PID += 1
 
     def addcons(self):
         ID = self.CID
-        name = "C"+str(ID)
+        name = f"C{str(ID)}"
         a = Consumer(name, self.q)
         self.CID += 1
 

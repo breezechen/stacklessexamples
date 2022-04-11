@@ -120,10 +120,7 @@ def send_throw(channel, exc, val=None, tb=None):
             val = sys.exc_info()[1]
         exc = val.__class__
     elif val is None:
-        if isinstance(type, exc):
-            exc, val = exc, ()
-        else:
-            exc, val = exc.__class__, exc
+        exc, val = (exc, ()) if isinstance(type, exc) else (exc.__class__, exc)
     if not isinstance(val, tuple):
         val = val.args
     channel.send_exception(exc, *val)
@@ -194,7 +191,7 @@ def call_async(dispatcher, function, args=(), kwargs={}, timeout=None, timeout_e
     """
     chan = qchannel()
     def helper():
-        try:
+        with contextlib.suppress(StopIteration):
             try:
                 result = function(*args, **kwargs)
             except Exception:
@@ -202,8 +199,6 @@ def call_async(dispatcher, function, args=(), kwargs={}, timeout=None, timeout_e
             else:
                 chan.send(result)
             main.mainloop.interrupt_wait() # in case we are on a different thread.
-        except StopIteration:
-            pass # The originator is no longer listening
 
     # submit the helper to the dispatcher
     dispatcher(helper)

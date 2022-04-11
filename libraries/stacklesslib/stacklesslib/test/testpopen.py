@@ -33,12 +33,12 @@ def popen4(cmd, mode='t', bufsize=-1):
  
  
 def read_process(cmd, args=""):
-    pipein, pipeout = popen4("%s %s" % (cmd, args))
+    pipein, pipeout = popen4(f"{cmd} {args}")
     try:
         firstline = pipeout.readline()
         if (re.search(r"(not recognized|No such file|not found)", firstline,
                       re.IGNORECASE)):
-            raise IOError('%s must be on your system path.' % cmd)
+            raise IOError(f'{cmd} must be on your system path.')
         output = firstline + pipeout.read()
     finally:
         pipeout.close()

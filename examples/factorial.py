@@ -27,9 +27,7 @@ def call(f, *args, **kwargs):
     stackless.tasklet(call_wrapper)(f, args, kwargs, result_ch)
     return result_ch.receive()
 def factorial(n):
-    if n <= 1:
-        return 1
-    return n * call(factorial, n-1)
+    return 1 if n <= 1 else n * call(factorial, n-1)
 
 st = time.time()
 
